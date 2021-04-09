@@ -1,4 +1,14 @@
+const START = "issues/START";
+const FINISHED = "issues/FINISHED";
 const GET_ISSUES = "issues/GET_ISSUES";
+
+export const start = () => ({
+  type: START,
+});
+
+export const finished = () => ({
+  type: FINISHED,
+});
 
 export const getIssues = ({ repoId, issues }) => ({
   type: GET_ISSUES,
@@ -8,6 +18,7 @@ export const getIssues = ({ repoId, issues }) => ({
 
 const initialState = {
   byRepoId: {},
+  loading: false,
 };
 
 const parseIssues = (state, repoId, issues) => {
@@ -28,11 +39,21 @@ const parseIssues = (state, repoId, issues) => {
 
 function issuesReducer(state = initialState, action) {
   switch (action.type) {
+    case START:
+      return {
+        ...state,
+        loading: true,
+      };
     case GET_ISSUES:
       const { repoId, issues } = action;
       return {
         ...state,
         byRepoId: parseIssues(state.byRepoId, repoId, issues),
+      };
+    case FINISHED:
+      return {
+        ...state,
+        loading: false,
       };
     default:
       return state;

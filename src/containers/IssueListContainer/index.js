@@ -1,9 +1,9 @@
 import React, { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { IssueList } from "components";
+import { IssueList, Loading } from "components";
 import * as issuesApi from "api/issues";
-import { getIssues } from "modules/issues";
+import { getIssues, start, finished } from "modules/issues";
 
 function IssueListContainer() {
   const dispatch = useDispatch();
@@ -11,9 +11,11 @@ function IssueListContainer() {
   const { owner, name, open_issues_count } =
     useSelector((state) => state.repos.byId[repoId]) || {};
   const issues = useSelector((state) => state.issues.byRepoId[repoId]);
+  const loading = useSelector((state) => state.issues.loading);
 
   const requestGetIssues = useCallback(
     async (page) => {
+      dispatch(start());
       try {
         const issues = await issuesApi.getIssues({
           owner,
@@ -23,6 +25,8 @@ function IssueListContainer() {
         dispatch(getIssues({ repoId, issues }));
       } catch (e) {
         alert(e.message);
+      } finally {
+        dispatch(finished());
       }
     },
     [repoId, owner, name]
@@ -36,8 +40,7 @@ function IssueListContainer() {
     },
     [repoId, owner, name]
   );
-
-  if (!issues) return null;
+  if (loading) return <Loading />;
 
   return <IssueList openIssuesCount={open_issues_count} issues={issues} />;
 }

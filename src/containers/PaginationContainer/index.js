@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { Pagination } from "components";
 import * as issuesApi from "api/issues";
-import { getIssues } from "modules/issues";
+import { getIssues, start, finished } from "modules/issues";
 
 function PaginationContainer() {
   const dispatch = useDispatch();
@@ -45,6 +45,7 @@ function PaginationContainer() {
     if (number <= 0) return;
     if (number > countTotalPage()) return;
 
+    dispatch(start());
     try {
       const issues = await issuesApi.getIssues({
         owner,
@@ -57,6 +58,8 @@ function PaginationContainer() {
       setCurrentPage(number);
     } catch (e) {
       alert(e.message);
+    } finally {
+      dispatch(finished());
     }
   };
 
